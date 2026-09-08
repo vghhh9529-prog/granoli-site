@@ -1,0 +1,17 @@
+import { ArrowRight, Minus, Plus, Trash2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useLocation } from "wouter";
+import { useAuth } from "@/_core/hooks/useAuth";
+import StoreHeader from "@/components/StoreHeader";
+import { clearCart, getCart, removeFromCart, updateCartQuantity, type CartItem } from "@/lib/cart";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
+
+export default function Cart() {
+  const { user } = useAuth(); const [, navigate] = useLocation(); const [items, setItems] = useState<CartItem[]>(getCart());
+  useEffect(() => { const refresh = () => setItems(getCart()); window.addEventListener("granoli-cart-change", refresh); return () => window.removeEventListener("granoli-cart-change", refresh); }, []);
+  const total = useMemo(() => items.reduce((sum, item) => sum + Number(item.price) * item.quantity, 0), [items]);
+  const order = trpc.orders.create.useMutation({ onSuccess: (data) => { clearCart(); setItems([]); toast.success(`تم تسجيل طلبك رقم #${data.id}`); }, onError: (error) => toast.error(error.message) });
+  const checkout = () => { if (!user) { navigate("/login"); return; } order.mutate({ items: items.map((item) => ({ productId: item.productId, quantity: item.quantity })) }); };
+  return <div className="site-shell"><StoreHeader /><section className="page-hero"><div className="container"><div className="eyebrow">خطوتك الأخيرة</div><h1>سلة مشترياتك</h1><p>راجعي اختياراتك ثم أرسلي طلبك بسهولة.</p></div></section><main className="section"><div className="container">{!items.length ? <div className="empty-state"><h2>السلة فاضية حالياً</h2><p>اختاري نكهة تحبينها ونرجع نلتقي هنا.</p><Link className="btn-primary mt-5" href="/products">تصفحي المنتجات <ArrowRight size={16} /></Link></div> : <div className="cart-layout"><div className="cart-list"><div className="flex justify-between items-center mb-4"><h2 className="text-2xl font-bold m-0">المنتجات المختارة</h2><span className="text-sm text-[#766b5d]">{items.length} أصناف</span></div>{items.map((item) => <div className="cart-row" key={item.productId}><img src={item.imageUrl} alt={item.name} /><div><h3>{item.name}</h3><p>{Number(item.price).toFixed(3)} ر.ع للعبوة</p><div className="quantity mt-2"><button aria-label="تقليل" onClick={() => updateCartQuantity(item.productId, item.quantity - 1)}><Minus size={13} /></button><strong>{item.quantity}</strong><button aria-label="زيادة" onClick={() => updateCartQuantity(item.productId, item.quantity + 1)}><Plus size={13} /></button></div></div><div className="text-left"><strong>{(Number(item.price) * item.quantity).toFixed(3)} ر.ع</strong><button className="block text-[#9a6c31] mt-3" onClick={() => removeFromCart(item.productId)} aria-label="حذف"><Trash2 size={16} /></button></div></div>)}</div><aside className="summary-card"><h2 className="text-2xl font-bold mt-0">ملخص الطلب</h2><div className="summary-line"><span>المجموع الفرعي</span><strong>{total.toFixed(3)} ر.ع</strong></div><div className="summary-line"><span>التوصيل</span><span>يحدد عند التواصل</span></div><div className="summary-line summary-total"><span>الإجمالي</span><span>{total.toFixed(3)} ر.ع</span></div><button className="btn-primary w-full mt-5" onClick={checkout} disabled={order.isPending}>{order.isPending ? "جارٍ تسجيل الطلب..." : user ? "تأكيد الطلب" : "سجّلي الدخول للطلب"}</button><p className="text-xs text-[#766b5d] leading-7 mt-4">بعد التأكيد سيتواصل معك فريق جرانولي لإتمام تفاصيل التوصيل والدفع.</p></aside></div>}</div></main></div>;
+}

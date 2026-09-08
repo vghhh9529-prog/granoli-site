@@ -431,6 +431,25 @@
     .hero-mark-wrap{margin-top:0;}
     .hero-inner{transform:translateY(-70px);}
   }
+
+  /* motion layer: falling granola + entrance loader */
+  .page-loader{position:fixed;inset:0;z-index:9999;background:var(--olive-deep);display:grid;place-items:center;transition:opacity .65s ease,visibility .65s ease}
+  .page-loader.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
+  .loader-inner{text-align:center;color:var(--cream-light)}
+  .loader-kernel{width:22px;height:38px;margin:0 auto 18px;border-radius:72% 28% 72% 28%;background:var(--gold);animation:loaderPulse 1s ease-in-out infinite;box-shadow:0 0 0 10px rgba(211,167,92,.12),0 8px 22px rgba(0,0,0,.22)}
+  .loader-inner p{margin:0;color:rgba(250,246,236,.72);font-size:13px;letter-spacing:.08em}
+  @keyframes loaderPulse{0%,100%{transform:rotate(22deg) translateY(0) scale(.92)}50%{transform:rotate(22deg) translateY(-8px) scale(1.05)}}
+  .grain-rain{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:4}
+  .grain{position:absolute;top:-42px;width:var(--size);height:calc(var(--size)*1.8);border-radius:72% 28% 72% 28%;background:var(--grain-color);opacity:0;animation:grainFall var(--duration) linear var(--delay) infinite;filter:drop-shadow(0 5px 5px rgba(45,34,22,.16))}
+  .grain:after{content:'';position:absolute;width:1px;height:70%;left:48%;top:13%;background:rgba(255,248,227,.35);transform:rotate(26deg)}
+  @keyframes grainFall{0%{transform:translate3d(0,-50px,0) rotate(var(--rotation));opacity:0}12%{opacity:.75}75%{opacity:.52}100%{transform:translate3d(var(--drift),110vh,0) rotate(calc(var(--rotation) + 250deg));opacity:0}}
+  .products-page .products-hero,.products-page .flavors,.products-page .products-footer{position:relative;z-index:1}
+  .products-page .products-top{position:relative;z-index:5}
+  .products-page .products-hero>*{position:relative;z-index:2}
+  .products-page .jar{opacity:0;transform:translateY(28px) rotate(-1deg);transition:opacity .7s ease,transform .7s cubic-bezier(.22,.68,0,1)}
+  .products-page .jar.is-in{opacity:1;transform:translateY(0) rotate(0)}
+  .products-page .jar:nth-child(2){transition-delay:.12s}.products-page .jar:nth-child(3){transition-delay:.24s}
+  @media (prefers-reduced-motion:reduce){.loader-kernel,.grain{animation:none}.products-page .jar{opacity:1;transform:none;transition:none}}
 </style>
 <style>
   body.products-page{background:var(--cream-light);}
@@ -453,7 +472,9 @@
 </style>
 </head>
 <body class="products-page">
+<div class="page-loader" id="pageLoader" aria-label="جارٍ تحميل المنتجات"><div class="loader-inner"><div class="loader-kernel"></div><p>نحضّر لكِ المذاق...</p></div></div>
 <header class="products-top"><div class="container products-top-inner"><a class="brand-mark" href="index.html#home" aria-label="جرانولي - الصفحة الرئيسية"><span class="brand-word latin">GRANOLI</span></a><a class="back-link" href="index.html#home">العودة للرئيسية ←</a></div></header>
+<div class="grain-rain" id="grainRain" aria-hidden="true"></div>
 <main>
 <section class="products-hero"><div class="container"><p class="eyebrow">تشكيلة جرانولي</p><h1>منتجاتنا الطبيعية</h1><p>اختاري نكهتك المفضلة من خلطات جرانولي المصنوعة بحبوب كاملة ومكونات مختارة بعناية.</p></div></section>
 <section class="flavors" id="products">
@@ -498,5 +519,30 @@
   </section>
 <section class="products-footer"><div class="container"><p>هل اخترتِ نكهتك المفضلة؟</p><a href="index.html#contact" class="btn btn-primary">تواصلي معنا للطلب</a></div></section>
 </main>
+<script>
+(function(){
+  var loader=document.getElementById('pageLoader');
+  window.addEventListener('load',function(){setTimeout(function(){loader&&loader.classList.add('is-hidden')},520)});
+  var rain=document.getElementById('grainRain');
+  var colors=['#D3A75C','#A97C3A','#7C8A6C','#C99B52'];
+  if(rain && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    for(var i=0;i<24;i++){
+      var g=document.createElement('span'); g.className='grain';
+      g.style.setProperty('--size',(9+Math.random()*12)+'px');
+      g.style.setProperty('--duration',(5.5+Math.random()*5)+'s');
+      g.style.setProperty('--delay',(-Math.random()*9)+'s');
+      g.style.setProperty('--rotation',(Math.random()*100-50)+'deg');
+      g.style.setProperty('--drift',(Math.random()*120-60)+'px');
+      g.style.setProperty('--grain-color',colors[i%colors.length]);
+      g.style.right=(Math.random()*98)+'%'; rain.appendChild(g);
+    }
+  }
+  var jars=document.querySelectorAll('.jar');
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('is-in');io.unobserve(e.target)}})},{threshold:.16});
+    jars.forEach(function(j){io.observe(j)});
+  }else{jars.forEach(function(j){j.classList.add('is-in')})}
+})();
+</script>
 </body>
 </html>

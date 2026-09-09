@@ -120,3 +120,11 @@ button { cursor: pointer; }
 @media (max-width: 860px) { .nav-links { display: none; } .hero-grid, .detail-grid, .cart-layout { grid-template-columns: 1fr; } .hero-copy { order: 1; } .hero-visual { order: 0; min-height: 300px; } .product-grid, .feature-grid { grid-template-columns: repeat(2, 1fr); } .stats-grid { grid-template-columns: repeat(2, 1fr); } .summary-card { position: static; } }
 @media (max-width: 560px) { .container { width: min(100% - 28px, 1180px); } .nav-inner { height: 68px; } .brand span { font-size: 14px; } .nav-actions .btn-primary { padding: 10px 13px; font-size: 12px; } .hero { padding: 56px 0 75px; } .hero h1 { font-size: 42px; } .product-grid, .feature-grid, .stats-grid { grid-template-columns: 1fr; } .section { padding: 62px 0; } .section-head { display: block; } .section-head .btn-ghost { margin-top: 15px; } .auth-card { padding: 25px 20px; } .admin-main { padding: 20px 14px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
+
+/* Inner pages only: keep the navigation on the Granoli olive background. */
+.site-shell > .site-nav { background: #2e3826; border-bottom-color: rgba(255,250,240,.12); }
+.site-shell > .site-nav .nav-links { color: rgba(255,250,240,.86); }
+.site-shell > .site-nav .nav-links a:hover { color: #fffaf0; }
+.site-shell > .site-nav .brand { color: #fffaf0; }
+.site-shell > .site-nav .icon-button { background: rgba(255,250,240,.10); border-color: rgba(255,250,240,.25); color: #fffaf0; }
+.site-shell > .site-nav .icon-button:hover { background: rgba(255,250,240,.18); }

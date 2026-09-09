@@ -4,12 +4,12 @@ import { ShoppingBag, UserRound } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useCartCount } from "@/lib/cart";
 
-export default function StoreHeader() {
+export default function StoreHeader({ className = "" }: { className?: string }) {
   const { user, logout } = useAuth();
   const [location] = useLocation();
   const count = useCartCount();
   return (
-    <header className="site-nav">
+    <header className={`site-nav ${className}`}>
       <div className="container nav-inner">
         <Link href="/" className="brand"><span className="brand-mark" /><span>GRANOLI</span></Link>
         <nav className="nav-links" aria-label="التنقل الرئيسي">
